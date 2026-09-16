@@ -1,0 +1,7 @@
+# 원본 GLB·중간 산출물 보관함.
+# 원본 모델이 개당 136~182MB 로 GitHub 파일 제한(100MB)을 넘어 올리지 않는다.
+# 프레임을 다시 렌더하려면 _backup/source-glb 의 원본을 루트로 되돌릴 것.
+_backup/
+
+node_modules/
+.DS_Store

@@ -1,0 +1,260 @@
+/* 3D 표출 기법 비교 POC — 공용 스타일
+   4개 페이지(flab / flab_handleable / odit29 / odit29_handleable)가 공유한다. */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+:root {
+  --bg:        #E6ECF6;
+  --panel:     #ffffff;
+  --text:      #111418;
+  --muted:     #8b93a3;
+  --line:      #d4dcea;
+  --accent:    #1f2937;
+}
+
+html, body { margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo',
+               'Noto Sans KR', sans-serif;
+  line-height: 1.6;
+  -webkit-text-size-adjust: 100%;
+}
+
+.wrap {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 20px 60px;
+}
+
+/* ── 헤더 ─────────────────────────────────────────────────── */
+header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: rgba(230, 236, 246, 0.92);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--line);
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+nav {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 12px 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+nav a {
+  padding: 7px 14px;
+  border-radius: 100px;
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  color: var(--muted);
+  border: 1px solid transparent;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+nav a:hover { color: var(--text); background: rgba(255,255,255,0.6); }
+nav a.is-active {
+  color: var(--text);
+  background: var(--panel);
+  border-color: var(--line);
+  font-weight: 600;
+}
+
+/* ── 페이지 제목 ──────────────────────────────────────────── */
+.page-head { padding: 34px 0 22px; }
+.page-head h1 {
+  margin: 0;
+  font-size: clamp(20px, 3vw, 27px);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+.page-head p {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+/* ── 3분할 ────────────────────────────────────────────────── */
+.compare {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 28px;
+  align-items: start;
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.panel-head {
+  padding: 14px 16px 13px;
+  border-bottom: 1px solid var(--line);
+}
+.panel-head .tag {
+  display: inline-block;
+  width: 22px;
+  height: 22px;
+  line-height: 22px;
+  text-align: center;
+  border-radius: 5px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+.panel-head .sub {
+  font-size: 12.5px;
+  color: #4b5563;
+  vertical-align: middle;
+}
+.panel-head .note {
+  display: block;
+  margin-top: 7px;
+  font-size: 11.5px;
+  color: var(--muted);
+}
+
+/* ── 뷰어 박스 ────────────────────────────────────────────── */
+.stage {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  background: var(--bg);
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  /* 터치: 가로 회전만 가져가고 세로는 페이지 스크롤에 양보 */
+  touch-action: pan-y;
+}
+.stage.is-grabbing { cursor: grabbing; }
+
+.stage > canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.stage > img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+  pointer-events: none;
+  -webkit-user-drag: none;
+}
+
+/* 상태 표시 */
+.state {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 11px;
+  padding: 18px;
+  text-align: center;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: #5b6472;
+}
+.state[hidden] { display: none !important; }
+
+.spin {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid rgba(0,0,0,0.12);
+  border-top-color: rgba(0,0,0,0.45);
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.pct {
+  font-size: 11.5px;
+  letter-spacing: 0.03em;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* 로딩 진행 바 */
+.bar {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 2px;
+  background: rgba(0,0,0,0.07);
+}
+.bar[hidden] { display: none !important; }
+.bar > i {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: rgba(0,0,0,0.3);
+  transition: width 0.2s linear;
+}
+
+/* 조작 힌트 */
+.hint {
+  position: absolute;
+  left: 50%;
+  bottom: 12px;
+  transform: translateX(-50%);
+  padding: 6px 13px;
+  border-radius: 100px;
+  background: rgba(0,0,0,0.42);
+  color: #fff;
+  font-size: 11px;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  pointer-events: none;
+  transition: opacity 0.4s;
+}
+.hint[hidden] { display: none !important; }
+.stage.is-touched .hint { opacity: 0; }
+
+/* 실측값 */
+.metrics {
+  border-top: 1px solid var(--line);
+  padding: 12px 16px 14px;
+  font-size: 12px;
+  color: #4b5563;
+}
+.metrics .row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  line-height: 1.9;
+}
+.metrics .row span { color: var(--muted); }
+.metrics .row b { font-weight: 600; font-variant-numeric: tabular-nums; }
+
+/* ── 모바일: 수직 나열 ────────────────────────────────────── */
+@media (max-width: 900px) {
+  .compare {
+    grid-template-columns: 1fr;
+    gap: 36px;
+  }
+  .wrap { padding: 0 16px 48px; }
+  .page-head { padding: 26px 0 18px; }
+}

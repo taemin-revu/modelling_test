@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>odit29.glb — 3D 표출 기법 비교</title>
+<link rel="stylesheet" href="assets/compare.css">
+
+<!-- bare specifier('three', 'three/examples/jsm/...')를 브라우저가 해석하게 해주는 매핑.
+     번들러 없이 ESM import 를 쓰려면 필요하다. Chrome 89+, Safari 16.4+, Firefox 108+ -->
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/examples/jsm/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+</head>
+<body>
+
+<!-- ══════ 이 페이지의 설정 — 페이지마다 이 블록만 다르다 ══════ -->
+<script>
+  window.PAGE = {
+    model: 'odit29',
+    nav:   ['flab', 'flab_handleable', 'odit29', 'odit29_handleable'],
+
+    A: { file: 'resources/A/odit29.glb', mb: '8.18' },
+    B: { folder: 'resources/B/odit29', step: 5, ext: 'webp', dragSpeed: 5, mb: '2.39' },
+    C: { file: 'resources/C/odit29/odit29.gltf', mb: '9.80' },
+
+    zoom: 5,       // 세 영역 공통 — 크기를 맞춰야 비교가 된다
+    angleX: 12     // A·C 시작 상하 각도 (B 는 프레임에 구워져 있음)
+  };
+</script>
+
+<script type="module" src="assets/compare.js"></script>
+
+</body>
+</html>
