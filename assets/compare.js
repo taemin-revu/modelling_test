@@ -246,7 +246,8 @@ function create3D(stage, metricsEl, cfg, bytesPrefix) {
   });
 
   /* ── 조작: 좌우 + 상하 자유 회전 ────────────────────────── */
-  const MULT = 0.006;
+  const MULT      = 0.006;   // 좌우 감도 (rad/px)
+  const TILT_MULT = 0.003;   // 상하 감도 — 범위가 ±60° 뿐이라 절반으로 둔다
   let dragging = false, prevX = 0, prevY = 0, velX = 0;
 
   function down(x, y) {
@@ -258,7 +259,7 @@ function create3D(stage, metricsEl, cfg, bytesPrefix) {
     velX = (x - prevX) * MULT;
     pivot.rotation.y += velX;
     if (withTilt) {
-      const nx = pivot.rotation.x + (y - prevY) * MULT;
+      const nx = pivot.rotation.x + (y - prevY) * TILT_MULT;
       pivot.rotation.x = clamp(nx, -TILT_LIMIT * DEG, TILT_LIMIT * DEG);
     }
     prevX = x; prevY = y;
@@ -271,9 +272,12 @@ function create3D(stage, metricsEl, cfg, bytesPrefix) {
   window.addEventListener('mousemove', e => move(e.clientX, e.clientY, true));
   window.addEventListener('mouseup', up);
 
-  /* 터치: 가로만 회전, 세로는 페이지 스크롤에 양보.
-     모바일은 뷰어가 화면 폭을 채우고 수직으로 이어지므로, 세로를 회전으로
-     가져가면 그 구간에서 페이지를 스크롤할 방법이 없어진다. */
+  /* 터치: 제스처가 "시작된 방향"으로만 판정한다.
+       가로로 시작 → 그 제스처 동안 상하까지 회전 (자유 회전)
+       세로로 시작 → 손대지 않고 페이지 스크롤에 넘김
+     판정은 제스처당 한 번뿐이라, 옆으로 살짝 움직여 시작하면 이어서
+     위아래로도 돌릴 수 있고 세로로 시작하면 스크롤이 그대로 동작한다.
+     이렇게 하면 뷰어가 화면을 채워도 스크롤 함정이 생기지 않는다. */
   let t0x = 0, t0y = 0, axis = null;
   stage.addEventListener('touchstart', e => {
     if (e.touches.length !== 1) return;
@@ -288,9 +292,9 @@ function create3D(stage, metricsEl, cfg, bytesPrefix) {
       axis = dx > dy ? 'x' : 'y';
       if (axis === 'x') down(t0x, t0y);
     }
-    if (axis !== 'x') return;
+    if (axis !== 'x') return;      // 세로로 시작한 제스처 → 스크롤에 양보
     e.preventDefault();
-    move(x, y, false);
+    move(x, y, true);              // 가로로 시작했으므로 상하도 회전
   }, { passive: false });
   stage.addEventListener('touchend',    () => { axis = null; up(); }, { passive: true });
   stage.addEventListener('touchcancel', () => { axis = null; up(); }, { passive: true });
