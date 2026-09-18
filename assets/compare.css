@@ -92,6 +92,14 @@ nav a.is-active {
   align-items: start;
 }
 
+/* ── 2x2 (D 케이스) ───────────────────────────────────────── */
+.compare-4 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 28px;
+  align-items: start;
+}
+
 .panel {
   background: var(--panel);
   border: 1px solid var(--line);
@@ -251,7 +259,7 @@ nav a.is-active {
 
 /* ── 모바일: 수직 나열 ────────────────────────────────────── */
 @media (max-width: 900px) {
-  .compare {
+  .compare, .compare-4 {
     grid-template-columns: 1fr;
     gap: 36px;
   }
